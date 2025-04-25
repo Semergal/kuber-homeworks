@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shared-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shared-app
+  template:
+    metadata:
+      labels:
+        app: shared-app
+    spec:
+      containers:
+      - name: busybox
+        image: busybox:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - >
+            while true; do
+              echo "$(date)" | tee /shared/data.txt;
+              sleep 5;
+            done
+        volumeMounts:
+        - name: shared-volume
+          mountPath: /shared
+      - name: multitool
+        image: praqma/network-multitool:latest
+        command: ["/bin/sh", "-c"]
+        args:
+          - >
+            while true; do
+              cat /shared/data.txt;
+              sleep 5;
+            done
+        volumeMounts:
+        - name: shared-volume
+          mountPath: /shared
+      volumes:
+      - name: shared-volume
+        emptyDir: {}
