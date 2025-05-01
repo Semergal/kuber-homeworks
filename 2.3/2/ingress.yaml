@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-https-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+spec:
+  tls:
+  - hosts:
+      - net1.local
+    secretName: nginx-tls-secret
+  rules:
+  - host: net1.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: nginx-https-service
+            port:
+              number: 443
